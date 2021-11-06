@@ -1,6 +1,8 @@
 package com.nps.devassessment.repo;
 
 import com.nps.devassessment.entity.WorkflowEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +29,7 @@ public interface WorkflowRepo extends PagingAndSortingRepository<WorkflowEntity,
   List<WorkflowEntity.BasicInfo> findIdYjbYpIdAndTaskStatusByCreatedBy(@Param("createdBy") final String createdBy);
 
   List<WorkflowEntity> findFirst10ByProcessOrderByIdDesc(final String process);
+
+  @Query("SELECT w from WorkflowEntity w")
+  Page<WorkflowEntity> findAllWorkflows(Pageable pageable);
 }

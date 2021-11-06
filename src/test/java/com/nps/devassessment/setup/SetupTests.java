@@ -2,19 +2,22 @@ package com.nps.devassessment.setup;
 
 import com.nps.devassessment.entity.WorkflowEntity;
 import com.nps.devassessment.service.WorkflowRepoService;
-import org.hibernate.cfg.NotYetImplementedException;
+import org.hibernate.jdbc.Work;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -149,6 +152,30 @@ public class SetupTests {
     // For each page: write the count of each distinct workflow_status to the log
     // Once you have paged through the entire table, write the amount of pages to the log
 
-    throw new NotYetImplementedException();
+    // Tom - the word doc says page size 50 and it says 20 in above comment...going with 50
+
+    int pageNumber = 0;
+    do {
+      Page<WorkflowEntity> page = this.workflowRepoService.findPage(pageNumber);
+
+      Set<String> workflowStatuses = page.get()
+          .map(WorkflowEntity::getWorkflowState)
+          .collect(Collectors.toSet());
+
+      // page 20 has a null for workflow status...
+      long nullWorkflowStatuses = page.get().filter(workflowEntity -> null == workflowEntity.getWorkflowState()).count();
+      log.info("page {} has {} occurrences of null", page.getNumber() + 1, nullWorkflowStatuses);
+
+      workflowStatuses.forEach(workflowStatus -> {
+        if (null != workflowStatus) {
+          List<WorkflowEntity> workflowEntities = page.get()
+              .filter(x -> null != x.getWorkflowState() && x.getWorkflowState().equalsIgnoreCase(workflowStatus))
+              .collect(Collectors.toList());
+          log.info("page {} has {} occurrences of {}", page.getNumber() + 1, workflowEntities.size(), workflowStatus);
+        }
+      });
+    } while (!this.workflowRepoService.findPage(pageNumber++).isLast());
+
+    log.info("total pages: {}", pageNumber);
   }
 }

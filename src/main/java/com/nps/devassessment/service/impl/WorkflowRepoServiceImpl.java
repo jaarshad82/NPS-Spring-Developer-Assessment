@@ -4,6 +4,9 @@ import com.nps.devassessment.entity.WorkflowEntity;
 import com.nps.devassessment.repo.WorkflowRepo;
 import com.nps.devassessment.service.WorkflowRepoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -58,5 +61,11 @@ public class WorkflowRepoServiceImpl implements WorkflowRepoService {
   @Override
   public List<WorkflowEntity> findFirst10ByProcessOrderByIdDesc(final String process) {
     return this.workflowRepo.findFirst10ByProcessOrderByIdDesc(process);
+  }
+
+  @Override
+  public Page<WorkflowEntity> findPage(final int pageNumber) {
+    Pageable pageable = PageRequest.of(pageNumber, 50);
+    return this.workflowRepo.findAll(pageable);
   }
 }

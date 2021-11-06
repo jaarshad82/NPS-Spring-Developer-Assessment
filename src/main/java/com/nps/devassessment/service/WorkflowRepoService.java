@@ -1,6 +1,7 @@
 package com.nps.devassessment.service;
 
 import com.nps.devassessment.entity.WorkflowEntity;
+import org.springframework.data.domain.Page;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,4 +31,6 @@ public interface WorkflowRepoService {
 
   // fetch top ten workflows by 'process' in id decending order
   List<WorkflowEntity> findFirst10ByProcessOrderByIdDesc(final String process);
+
+  Page<WorkflowEntity> findPage(final int pageNumber);
 }
