@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -67,5 +68,12 @@ public class WorkflowRepoServiceImpl implements WorkflowRepoService {
   public Page<WorkflowEntity> findPage(final int pageNumber) {
     Pageable pageable = PageRequest.of(pageNumber, 50);
     return this.workflowRepo.findAll(pageable);
+  }
+
+  @Override
+  public List<WorkflowEntity> findAll() {
+    List<WorkflowEntity> workflowEntities = new ArrayList<>();
+    this.workflowRepo.findAll().forEach(workflowEntity -> workflowEntities.add(workflowEntity));
+    return workflowEntities;
   }
 }

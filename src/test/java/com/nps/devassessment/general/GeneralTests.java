@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @SpringBootTest
@@ -24,7 +25,6 @@ public class GeneralTests {
   @Autowired
   private WorkflowRepoService workflowRepoService;
 
-
   @Test
   public void test1_shouldDemonstrateFilteringInLambdas() {
     // Use the query you created during the Setup tests to select all workflows with a workflow state of "IN PROGRESS"
@@ -32,7 +32,15 @@ public class GeneralTests {
     // With the resulting set of workflows, concatenate all of the id values into a comma-separated string and
     //    write that string to the log
 
-    throw new NotYetImplementedException();
+    List<WorkflowEntity> workflows = this.workflowRepoService.findWorkflowsByState("IN PROGRESS");
+    workflows = workflows.stream()
+        .filter(workflow -> null == workflow.getTaskStatus())
+        .collect(Collectors.toList());
+    List<String> ids = workflows.stream()
+        .map(workflow -> workflow.getId().toString())
+        .collect(Collectors.toList());
+    String resultStr = String.join(",", ids);
+    log.info("id str {}", resultStr);
   }
 
 
@@ -48,7 +56,7 @@ public class GeneralTests {
         .collect(Collectors.toList());
 
     log.info("lowest yjb_yp_id {}", sortedResultList.get(0).getYjbYp());
-    log.info("highest yjb_yp_id {}", sortedResultList.get(sortedResultList.size()-1).getYjbYp());
+    log.info("highest yjb_yp_id {}", sortedResultList.get(sortedResultList.size() - 1).getYjbYp());
   }
 
 
@@ -59,7 +67,19 @@ public class GeneralTests {
     // For each workflow: If the yjb_yp_id is greater than the value you have stored in the variable, update the variable with the new value
     // After you have looped through all entries in the table, outside of the lambda write the highest yjb_yp_id to the log
 
-    throw new NotYetImplementedException();
+    List<WorkflowEntity> workflowEntities = this.workflowRepoService.findAll();
+    List<WorkflowEntity> sortedResultList = workflowEntities.stream()
+        .sorted(Comparator.comparing(WorkflowEntity::getYjbYp))
+        .collect(Collectors.toList());
+
+    AtomicReference<Long> lowestYjbYp = new AtomicReference<>();
+    lowestYjbYp.set(sortedResultList.get(0).getYjbYp());
+    log.info("lowest yjb_yp_id {}", lowestYjbYp.get());
+
+    workflowEntities.forEach(workflowEntity -> {
+      lowestYjbYp.set(lowestYjbYp.get() < workflowEntity.getYjbYp() ? workflowEntity.getYjbYp() : lowestYjbYp.get());
+    });
+    log.info("highest yjb_yp_id {}", lowestYjbYp.get());
   }
 
 
